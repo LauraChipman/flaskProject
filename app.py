@@ -1,8 +1,16 @@
 from flask import Flask, render_template
 from pymongo import MongoClient
-app = Flask(__name__, template_folder ="templates")
+from dotenv import load_dotenv
+import os
 
-client = MongoClient("mongodb+srv://dbUser:P94csSBhhiU2eA.@flaskappcluster.x97xv.mongodb.net/?retryWrites=true&w=majority&appName=FlaskAppCluster")
+load_dotenv()
+
+app = Flask(__name__, template_folder="templates")
+
+MONGODB_USERNAME = os.getenv('MONGODB_USERNAME')
+MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD')
+
+client = MongoClient(f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@flaskappcluster.x97xv.mongodb.net/?retryWrites=true&w=majority&appName=FlaskAppCluster")
 db = client["shop_db"]
 products_collection = db["products"]
 
@@ -25,13 +33,13 @@ mock_data = [{
   "image_path": "images/headphones.jpg"
 }]
 
+# Insert mock data into MongoDB collection
 products_collection.insert_many(mock_data)
-# Home route
+
 @app.route('/')
 def home():
     return render_template('home.html')
 
-# Products route
 @app.route('/products')
 def products():
     # Fetch products from MongoDB
